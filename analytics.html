@@ -9,7 +9,7 @@
       <p><label>Number of visits total: {{data.total}}</label><span></span></p>
       <div>
           <label>Sample document: </label>
-          <pre ng-bind="data.records | jsonPrettyPrint"></pre>
+          <pre ng-bind="data.records | sampleRecordsJsonPrettyPrint"></pre>
       </div>
     </div>
     <script>
@@ -25,8 +25,8 @@
             return function() {
                 return $http.get("/analytics.json").then(function(response) { return response.data; });
             };
-        }]).filter('jsonPrettyPrint', function() {
-            return function(obj) { return JSON.stringify(obj, null, 2); };
+        }]).filter('sampleRecordsJsonPrettyPrint', function() {
+            return function(records) { return JSON.stringify(records.slice(0, 5), null, 2); };
         });
     </script>
   </body>
