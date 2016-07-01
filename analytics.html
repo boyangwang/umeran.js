@@ -1,12 +1,33 @@
 <!DOCTYPE html>
-<html ng-app>
+<html ng-app="umeran">
   <head>
     <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.5.7/angular.min.js"></script>
   </head>
   <body>
-    <div>
-      <p><label>Number of visits in past 24 hours: </label><span></span></p>
-      <p><label>Number of visits total: </label><span></span></p>
+    <div ng-controller="umeranController">
+      <p><label>Number of visits in past 24 hours: {{data.records.length}}</label><span></span></p>
+      <p><label>Number of visits total: {{data.total}}</label><span></span></p>
+      <div>
+          <label>Sample document: </label>
+          <pre ng-bind="data.records | jsonPrettyPrint"></pre>
+      </div>
     </div>
+    <script>
+        angular.module('umeran', [])
+        .controller('umeranController', ['umeranJsonService', '$scope',
+        function(umeranJsonService, $scope) {
+            umeranJsonService().then(function(data) {
+                $scope.data = data;
+                console.log(data.records, JSON.stringify(data.records, null, 2));
+                $scope.data.prettyRecords = JSON.stringify(data.records, null, 2);
+            });
+        }]).factory("umeranJsonService", ['$http', function($http) {
+            return function() {
+                return $http.get("/analytics.json").then(function(response) { return response.data; });
+            };
+        }]).filter('jsonPrettyPrint', function() {
+            return function(obj) { return JSON.stringify(obj, null, 2); };
+        });
+    </script>
   </body>
 </html>
