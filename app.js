@@ -15,8 +15,10 @@ dbPromise.then((dbConnection) => {
 function analyticsPngHandler(req, res) {
     let timestamp = new Date();
     createRecord(req, timestamp)
-    .then(() => res.sendFile(__dirname + '/white-1x1.png'))
-    .catch((reason) => console.log('reason', reason));
+    .then(() => {
+        res.set('Cache-Control', 'no-cache, no-store, must-revalidate');
+        res.sendFile(__dirname + '/white-1x1.png');
+    }).catch((reason) => console.log('reason', reason));
 }
 function getTotalRecords() {
     return db.collection('analyticsPngRaw').count({});

@@ -18,7 +18,6 @@
         function(umeranJsonService, $scope) {
             umeranJsonService().then(function(data) {
                 $scope.data = data;
-                console.log(data.records, JSON.stringify(data.records, null, 2));
                 $scope.data.prettyRecords = JSON.stringify(data.records, null, 2);
             });
         }]).factory("umeranJsonService", ['$http', function($http) {
