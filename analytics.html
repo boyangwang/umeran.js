@@ -18,14 +18,13 @@
         function(umeranJsonService, $scope) {
             umeranJsonService().then(function(data) {
                 $scope.data = data;
-                $scope.data.prettyRecords = JSON.stringify(data.records, null, 2);
             });
         }]).factory("umeranJsonService", ['$http', function($http) {
             return function() {
                 return $http.get("/analytics.json").then(function(response) { return response.data; });
             };
         }]).filter('sampleRecordsJsonPrettyPrint', function() {
-            return function(records) { return JSON.stringify(records.slice(0, 5), null, 2); };
+            return function(records) { return records && JSON.stringify(records.slice(0, 5), null, 2); };
         });
     </script>
   </body>
