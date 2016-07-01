@@ -1,0 +1,23 @@
+{
+  "name": "umeran.js",
+  "version": "0.0.1",
+  "author": "",
+  "description": "",
+  "main": "app.js",
+  "dependencies": {
+    "express": "^4.14.0",
+    "mongodb": "^2.1.18"
+  },
+  "devDependencies": {},
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/boyangwang/umeran.js.git"
+  },
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/boyangwang/umeran.js/issues"
+  }
+}
