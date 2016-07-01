@@ -14,7 +14,7 @@
   },
   "devDependencies": {},
   "scripts": {
-    "test": "./node_modules/.bin/mocha --reporter spec"
+    "test": "node_modules/mocha/bin/mocha --reporter spec"
   },
   "repository": {
     "type": "git",
