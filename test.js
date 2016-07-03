@@ -11,13 +11,35 @@ let db;
 
 describe('umeranApp', () => {
     before((done) => {
+        app.server.listening ? setup() : app.server.on('listening', setup);
+
         function setup() {
             connectAndSetMongo()
                 .then(clearCollection)
-                .then(done)
-                .catch((reason) => done(reason));
+                .then(done).catch((reason) => done(reason));
         }
-        app.server.listening ? setup() : app.server.on('listening', setup);
+    });
+    describe('serves static files from all public subfolders', () => {
+        it('works on public/', (done) => {
+            testStatic(done, '/analytics.html');
+        });
+        it('works on public/js', (done) => {
+            testStatic(done, '/js/analytics.js');
+        });
+
+        function testStatic(done, filePath) {
+            rp({uri: hostUrl + filePath})
+                .then((res) => new Promise((resolve, reject) => {
+                    fs.readFile(__dirname + '/public' + filePath, 'utf8', (err, data) => {
+                        if (err)
+                            reject(err);
+                        else
+                            resolve({file: data, res: res});
+                    });
+                }))
+                .then((compare) => { expect(compare.res).to.equal(compare.file); })
+                .then(done).catch((reason) => done(reason));
+        }
     });
     describe('when receive request for analytics.png then analytics.json', () => {
         let resPng, resJson, previousCount;
@@ -30,7 +52,7 @@ describe('umeranApp', () => {
                 .then((response) => void (resPng = response))
                 .then(() => rp({uri: hostUrl + '/analytics.json', resolveWithFullResponse: true}))
                 .then((response) => void (resJson = response))
-                .then(done);
+                .then(done).catch((reason) => done(reason));
         });
         it('returns the image', (done) => {
             expect(resPng.statusCode).to.equal(200);
@@ -43,13 +65,12 @@ describe('umeranApp', () => {
                 });
             })
                 .then((data) => { expect(resPng.body).to.equal(data); })
-                .then(done)
-                .catch((reason) => done(reason));
+                .then(done).catch((reason) => done(reason));
         });
         it('stores a raw record', (done) => {
             db.collection('analyticsPngRaw').count({timestamp: {$gte: timestamp1MinuteBefore}})
                 .then((count) => { expect(count).to.equal(previousCount + 1); })
-                .then(done);
+                .then(done).catch((reason) => done(reason));
         });
         it('returns json with correct total and #record', () => {
             expect(resJson.statusCode).to.equal(200);

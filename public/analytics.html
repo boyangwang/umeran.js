@@ -1,0 +1,17 @@
+<!DOCTYPE html>
+<html ng-app="umeran">
+  <head>
+    <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.5.7/angular.min.js"></script>
+  </head>
+  <body>
+    <div ng-controller="umeranController">
+      <p><label>Number of visits in past 24 hours: {{data.records.length}}</label><span></span></p>
+      <p><label>Number of visits total: {{data.total}}</label><span></span></p>
+      <div>
+          <label>Sample document: </label>
+          <pre ng-bind="data.records | sampleRecordsJsonPrettyPrint"></pre>
+      </div>
+    </div>
+    <script src="/js/analytics.js"></script>
+  </body>
+</html>

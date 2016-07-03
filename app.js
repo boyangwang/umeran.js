@@ -7,10 +7,9 @@ let db, app = module.exports = express();
 mongodb.MongoClient.connect(dbUrl)
     .then((dbConnection) => {
         db = dbConnection;
+        app.use(express.static(__dirname + '/public'));
         app.get('/analytics.png', analyticsPngHandler);
-        app.get('/analytics.html', analyticsHtmlHandler);
         app.get('/analytics.json', analyticsJsonHanlder);
-        app.get('/embed_script_test.js', (req, res) => res.sendFile(__dirname + '/embed_script_test.js'));
     })
     .then(new Promise((resolve, reject) => {
             app.server = app.listen(port,  () => {
@@ -56,9 +55,6 @@ function createRecord(req, timestamp) {
         }
         return raw;
     }
-}
-function analyticsHtmlHandler(req, res) {
-    res.sendFile(__dirname + '/analytics.html');
 }
 function analyticsJsonHanlder(req, res) {
     let timestamp1DayBefore = new Date(new Date().setDate(new Date().getDate()-1));
