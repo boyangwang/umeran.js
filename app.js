@@ -65,7 +65,7 @@ function analyticsJsonHanlder(req, res) {
     let result = { timestamp: timestamp1DayBefore };
     getTotalRecords()
         .then((total) => result.total = total)
-        .then(() => getRecordsAftertimestamp(timestamp1DayBefore))
+        .then(() => getRecordsAfterTimestamp(timestamp1DayBefore))
         .then((records) => result.records = records)
         .then(() => res.json(result))
         .catch((reason) => console.log('reason', reason));
