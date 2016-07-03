@@ -10,6 +10,7 @@ mongodb.MongoClient.connect(dbUrl)
         app.get('/analytics.png', analyticsPngHandler);
         app.get('/analytics.html', analyticsHtmlHandler);
         app.get('/analytics.json', analyticsJsonHanlder);
+        app.get('/embed_script_test.js', (req, res) => res.sendFile(__dirname + '/embed_script_test.js'));
     })
     .then(new Promise((resolve, reject) => {
             app.server = app.listen(port,  () => {
