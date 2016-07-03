@@ -8,8 +8,11 @@ mongodb.MongoClient.connect(dbUrl)
     .then((dbConnection) => {
         db = dbConnection;
         app.use(express.static(__dirname + '/public'));
+        app.use('/js', express.static(__dirname + '/node_modules/chart.js/dist'));
+        app.use('/js', express.static(__dirname + '/node_modules/angular-chart.js/dist'));
+        app.use('/js', express.static(__dirname + '/node_modules/underscore/'));
         app.get('/analytics.png', analyticsPngHandler);
-        app.get('/analytics.json', analyticsJsonHanlder);
+        app.get('/analytics.json', analyticsJsonHandler);
     })
     .then(new Promise((resolve, reject) => {
             app.server = app.listen(port,  () => {
@@ -33,7 +36,8 @@ function getTotalRecords() {
     return db.collection('analyticsPngRaw').count({});
 }
 function getRecordsAfterTimestamp(timestamp) {
-    return db.collection('analyticsPngRaw').find({timestamp: {$gte: timestamp}}).toArray();
+    return db.collection('analyticsPngRaw').find(
+        timestamp ? {timestamp: {$gte: timestamp}} : {}).toArray();
 }
 function createRecord(req, timestamp) {
     return db.collection('analyticsPngRaw').insertOne(buildRaw());
@@ -56,12 +60,12 @@ function createRecord(req, timestamp) {
         return raw;
     }
 }
-function analyticsJsonHanlder(req, res) {
+function analyticsJsonHandler(req, res) {
     let timestamp1DayBefore = new Date(new Date().setDate(new Date().getDate()-1));
     let result = { timestamp: timestamp1DayBefore };
     getTotalRecords()
         .then((total) => result.total = total)
-        .then(() => getRecordsAfterTimestamp(timestamp1DayBefore))
+        .then(() => getRecordsAfterTimestamp(/*timestamp1DayBefore*/))
         .then((records) => result.records = records)
         .then(() => res.json(result))
         .catch((reason) => console.log('reason', reason));
