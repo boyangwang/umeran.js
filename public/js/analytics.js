@@ -45,21 +45,17 @@ angular.module('umeran', ['chart.js'])
                     charts.totalVisitsPlatforms[platform] += 1;
             }
             for (var chart in charts) {
-                var newChart = {labels: Object.keys(charts[chart]).sort(), values: []};
+                var newChart = {labels: Object.keys(charts[chart]).sort(), values: [[]]};
 
                 for (var i=0; i<newChart.labels.length; i++){
-                    newChart.values.push(charts[chart][newChart.labels[i]]);
+                    newChart.values[0].push(charts[chart][newChart.labels[i]]);
                 }
                 charts[chart] = newChart;
             }
             console.log($scope.charts);
-            $scope.charts.totalVisitsHours.options =
-            $scope.charts.totalVisitsDates.options = {lineTension: 0};
             $scope.charts.totalVisitsHours.labels =
                 _.map($scope.charts.totalVisitsHours.labels, function(h) { return h + ':00'; });
         });
-        $scope.labels = ["January", "February", "March", "April", "May", "June", "July"];
-        $scope.data = [65, 59, 80, 81, 56, 55, 40];
 }]).factory("umeranJsonService", ['$http', function($http) {
     var masterData;
     return function() {
