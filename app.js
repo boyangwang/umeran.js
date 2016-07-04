@@ -8,6 +8,7 @@ mongodb.MongoClient.connect(dbUrl)
     .then((dbConnection) => {
         db = dbConnection;
         app.use(express.static(__dirname + '/public'));
+        app.use('/js', express.static(__dirname + '/node_modules/babel-polyfill/dist'));
         app.use('/js', express.static(__dirname + '/node_modules/chart.js/dist'));
         app.use('/js', express.static(__dirname + '/node_modules/angular-chart.js/dist'));
         app.use('/js', express.static(__dirname + '/node_modules/underscore/'));
