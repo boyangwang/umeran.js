@@ -1,13 +1,13 @@
 angular.module('umeran', ['chart.js'])
 .controller('umeranController', ['umeranJsonService', '$scope', function(umeranJsonService, $scope) {
-    umeranJsonService()
+    umeranJsonService
         .then(function(data) {
             $scope.masterData = data;
         })
         .catch((reason) => console.log(reason));
 }]).controller('umeranChartController', ['umeranJsonService', '$scope', function(umeranJsonService, $scope) {
     Chart.defaults.global.elements.line.tension = 0;
-    umeranJsonService()
+    umeranJsonService
         .then(function(masterData) {
             var charts = $scope.charts = {
                 totalVisitsDates: {},
@@ -59,14 +59,11 @@ angular.module('umeran', ['chart.js'])
             $scope.charts.totalVisitsDates.values = [$scope.charts.totalVisitsDates.values];
         });
 }]).factory("umeranJsonService", ['$http', function($http) {
-    var masterData;
-    return function() {
-        return masterData ? Promise.resolve(masterData) :
-            $http.get("/analytics.json").then(function(response) {
-                masterdata = response.data;
-                return response.data;
-            });
-    };
+    var masterDataPromise = $http.get("/analytics.json")
+        .then(function(response) {
+            return response.data;
+        });
+    return masterDataPromise;
 }]).filter('sampleRecordsJsonPrettyPrint', function() {
     return function(records) { return records && JSON.stringify(records.slice(0, 5), null, 2); };
 });
