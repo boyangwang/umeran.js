@@ -4,7 +4,7 @@ angular.module('umeran', ['chart.js'])
         .then(function(data) {
             $scope.masterData = data;
         })
-        .catch((reason) => console.log(reason));
+        .catch(function(reason) { console.log(reason); });
 }]).controller('umeranChartController', ['umeranJsonService', '$scope', function(umeranJsonService, $scope) {
     Chart.defaults.global.elements.line.tension = 0;
     umeranJsonService
