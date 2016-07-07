@@ -34,11 +34,11 @@ function analyticsPngHandler(req, res) {
         .catch((reason) => console.log('reason', reason));
 }
 function getTotalRecords() {
-    return db.collection('analyticsPngRaw').count({});
+    return db.collection('analyticsPngRaw').find({}).toArray();
 }
 function getRecordsAfterTimestamp(timestamp) {
-    return db.collection('analyticsPngRaw').find(
-        timestamp ? {timestamp: {$gte: timestamp}} : {}).toArray();
+    return db.collection('analyticsPngRaw').count(
+        timestamp ? {timestamp: {$gte: timestamp}} : {});
 }
 function createRecord(req, timestamp) {
     return db.collection('analyticsPngRaw').insertOne(buildRaw());
@@ -65,9 +65,9 @@ function analyticsJsonHandler(req, res) {
     let timestamp1DayBefore = new Date(new Date().setDate(new Date().getDate()-1));
     let result = { timestamp: timestamp1DayBefore };
     getTotalRecords()
-        .then((total) => result.total = total)
-        .then(() => getRecordsAfterTimestamp(/*timestamp1DayBefore*/))
         .then((records) => result.records = records)
+        .then(() => getRecordsAfterTimestamp(timestamp1DayBefore))
+        .then((count) => result.past24HoursCount = count)
         .then(() => res.json(result))
         .catch((reason) => console.log('reason', reason));
 }

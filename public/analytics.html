@@ -8,10 +8,10 @@
 <body>
     <div ng-controller="umeranController">
         <p>
-            <label>Number of visits in past 24 hours: {{masterData.records.length}}</label>
+            <label>Number of visits in past 24 hours: {{masterData.past24HoursCount}}</label>
         </p>
         <p>
-            <label>Number of visits total: {{masterData.total}}</label>
+            <label>Number of visits total: {{masterData.records.length}}</label>
         </p>
         <div ng-controller="umeranChartController" style="max-width: 640px;">
             <p>totalVisitsHours</p>

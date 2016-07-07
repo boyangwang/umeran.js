@@ -15,7 +15,7 @@ describe('umeranApp', () => {
 
         function setup() {
             connectAndSetMongo()
-                .then(clearCollection)
+                // .then(clearCollection)
                 .then(done).catch((reason) => done(reason));
         }
     });
@@ -42,12 +42,14 @@ describe('umeranApp', () => {
         }
     });
     describe('when receive request for analytics.png then analytics.json', () => {
-        let resPng, resJson, previousCount;
-        let timestamp1MinuteBefore = new Date(new Date().setMinutes(new Date().getMinutes()-1));
+        let resPng, resJson, previousCount, previousTotal;
+        let timestamp1DayBefore = new Date(new Date().setDate(new Date().getDate()-1));
 
         before((done) => {
-            db.collection('analyticsPngRaw').count({timestamp: {$gte: timestamp1MinuteBefore}})
-                .then((count) => previousCount = count)
+            db.collection('analyticsPngRaw').count()
+                .then(total => previousTotal = total)
+                .then(() => db.collection('analyticsPngRaw').count({timestamp: {$gte: timestamp1DayBefore}}))
+                .then(count => previousCount = count)
                 .then(() => rp({uri: hostUrl + '/analytics.png', resolveWithFullResponse: true}))
                 .then((response) => void (resPng = response))
                 .then(() => rp({uri: hostUrl + '/analytics.json', resolveWithFullResponse: true}))
@@ -68,15 +70,15 @@ describe('umeranApp', () => {
                 .then(done).catch((reason) => done(reason));
         });
         it('stores a raw record', (done) => {
-            db.collection('analyticsPngRaw').count({timestamp: {$gte: timestamp1MinuteBefore}})
+            db.collection('analyticsPngRaw').count({timestamp: {$gte: timestamp1DayBefore}})
                 .then((count) => { expect(count).to.equal(previousCount + 1); })
                 .then(done).catch((reason) => done(reason));
         });
         it('returns json with correct total and #record', () => {
             expect(resJson.statusCode).to.equal(200);
             let result = JSON.parse(resJson.body);
-            expect(result.total).to.equal(1);
-            expect(result.records.length).to.equal(1);
+            expect(result.past24HoursCount).to.equal(previousCount + 1);
+            expect(result.records.length).to.equal(previousTotal + 1);
         });
     });
 });
