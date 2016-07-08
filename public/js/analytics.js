@@ -6,7 +6,6 @@ angular.module('umeran', ['chart.js'])
         })
         .catch(function(reason) { console.log(reason); });
 }]).controller('umeranChartController', ['umeranJsonService', '$scope', function(umeranJsonService, $scope) {
-    Chart.defaults.global.elements.line.tension = 0;
     umeranJsonService
         .then(function(masterData) {
             var charts = $scope.charts = {
@@ -57,6 +56,8 @@ angular.module('umeran', ['chart.js'])
                 _.map($scope.charts.totalVisitsHours.labels, function(h) { return h + ':00'; });
             $scope.charts.totalVisitsHours.values = [$scope.charts.totalVisitsHours.values];
             $scope.charts.totalVisitsDates.values = [$scope.charts.totalVisitsDates.values];
+            $scope.charts.totalVisitsDates.datasetOverride = [{lineTension: 0}];
+            $scope.charts.totalVisitsHours.datasetOverride = [{lineTension: 0}];
         });
 }]).service("umeranJsonService", ['$http', function($http) {
     return masterDataPromise = $http.get("/analytics.json")

@@ -13,10 +13,10 @@
         </p>
         <div ng-controller="umeranChartController" style="max-width: 640px;">
             <p>totalVisitsHours</p>
-            <canvas class="chart chart-line" chart-data="charts.totalVisitsHours.values" chart-labels="charts.totalVisitsHours.labels">
+            <canvas class="chart chart-line" chart-data="charts.totalVisitsHours.values" chart-labels="charts.totalVisitsHours.labels" chart-dataset-override="charts.totalVisitsHours.datasetOverride">
             </canvas>
             <p>totalVisitsDates</p>
-            <canvas class="chart chart-line" chart-data="charts.totalVisitsDates.values" chart-labels="charts.totalVisitsDates.labels">
+            <canvas class="chart chart-line" chart-data="charts.totalVisitsDates.values" chart-labels="charts.totalVisitsDates.labels" chart-dataset-override="charts.totalVisitsDates.datasetOverride">
             </canvas>
             <p>totalVisitsBrowsers</p>
             <canvas class="chart chart-bar" chart-data="charts.totalVisitsBrowsers.values" chart-labels="charts.totalVisitsBrowsers.labels">
@@ -26,7 +26,7 @@
             </canvas>
             <div>
                 <label>Sample documents: </label>
-                <pre ng-bind="masterData.records | sampleRecordsJsonPrettyPrint"></pre>
+                <pre ng-bind="masterData.records | samples: 5 | jsonPrettyPrint"></pre>
             </div>
         </div>
     </div>
