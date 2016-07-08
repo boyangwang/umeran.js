@@ -11,6 +11,7 @@ mongodb.MongoClient.connect(dbUrl)
         app.use('/js', express.static(__dirname + '/node_modules/babel-polyfill/dist'));
         app.use('/js', express.static(__dirname + '/node_modules/chart.js/dist'));
         app.use('/js', express.static(__dirname + '/node_modules/angular-chart.js/dist'));
+        app.use('/js', express.static(__dirname + '/node_modules/jquery/dist'));
         app.use('/js', express.static(__dirname + '/node_modules/underscore/'));
         app.get('/analytics.png', analyticsPngHandler);
         app.get('/analytics.json', analyticsJsonHandler);
