@@ -58,12 +58,13 @@ angular.module('umeran', ['chart.js'])
             $scope.charts.totalVisitsHours.values = [$scope.charts.totalVisitsHours.values];
             $scope.charts.totalVisitsDates.values = [$scope.charts.totalVisitsDates.values];
         });
-}]).factory("umeranJsonService", ['$http', function($http) {
-    var masterDataPromise = $http.get("/analytics.json")
+}]).service("umeranJsonService", ['$http', function($http) {
+    return masterDataPromise = $http.get("/analytics.json")
         .then(function(response) {
             return response.data;
         });
-    return masterDataPromise;
-}]).filter('sampleRecordsJsonPrettyPrint', function() {
-    return function(records) { return records && JSON.stringify(records.slice(0, 5), null, 2); };
+}]).filter('jsonPrettyPrint', function() {
+    return function(records) { return records && JSON.stringify(records, null, 2); };
+}).filter('samples', function() {
+    return function(records, count) { return records && records.slice(0, 5); };
 });
