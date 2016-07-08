@@ -27,7 +27,7 @@ angular.module('umeran', ['chart.js'])
             totalVisitsBrowsers: function(record) { return window.useragent.guess_browser(record['user-agent']).browser; },
             totalVisitsPlatforms: function(record) { return window.useragent.guess(record['user-agent']).os; }
         };
-        var DEFAULT_XAXIS = {
+        var DEFAULT_DATA_POINTS = {
             totalVisitsHours: {'00': 0,'01': 0,'02': 0,'03': 0,'04': 0,'05': 0,'06': 0,'07': 0,'08': 0,'09': 0,'10': 0,'11': 0,'12': 0,
                 '13': 0,'14': 0,'15': 0,'16': 0,'17': 0,'18': 0,'19': 0,'20': 0,'21': 0,'22': 0,'23': 0}
         };
@@ -47,7 +47,7 @@ angular.module('umeran', ['chart.js'])
             _.each(CHART_NAMES, function(name) {
                 var curChart = charts[name] = charts[name]||{};
                 curChart.datasetOverride = DATASET_OVERRIDES[name]||{};
-                curChart.map = curChart.values||{};
+                curChart.map = Object.assign(curChart.map||{}, DEFAULT_DATA_POINTS[name]||{});
             });
         }
         function processRecordLevelData(charts, masterData) {
