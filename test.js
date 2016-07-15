@@ -24,7 +24,7 @@ describe('umeranApp', () => {
             testStatic(done, '/analytics.html');
         });
         it('works on public/js', (done) => {
-            testStatic(done, '/js/analytics.js');
+            testStatic(done, '/js/umeran.main.js');
         });
 
         function testStatic(done, filePath) {
