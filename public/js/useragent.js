@@ -1,8 +1,6 @@
 'use strict';
-(function(){
-var E = {};
-var is_node_ff = true;
-// XXX arik: sync: util/user_agent.js <-> svc/cdn/pub/play_loader.js
+var global = window.umeran = window.umeran||{}
+var E = global.useragent = {};
 var win_versions = {
     '10.0': '10.0',
     '6.3': '8.1',
@@ -13,80 +11,66 @@ var win_versions = {
     '5.1': 'xp',
     '5.0': '2000',
 };
-
 var arch_mapping = {
     x86_64: '64',
     i686: '32',
     arm: 'arm',
 };
-
-var check_hola = /\bhola_android\b/i;
-var check_android_cdn = /Android.* CDNService\/([0-9\.]+)$/;
-var check_ios_cdn = / CDNService\/([0-9\.]+)$/;
 var check_opera = /\bOPR\b\/(\d+)/i;
+var check_opera_mini = /\bOpera Mini\/(\d+)/;
 var check_edge = /\bEdge\b\/(\d+)/i;
 var check_xbox = /\bxbox\b/i;
 var check_ucbrowser = /\bUCBrowser\b\/(\d+)/i;
+var check_ie = /[( ]MSIE ([6789]|10).\d[);]/;
+var check_ie_legacy = /[( ]Trident\/\d+(\.\d)+.*rv:(\d\d)(\.\d)+[);]/;
+var regex_windows = /Windows(?: NT(?: (.*?))?)?[);]/;
 
 E.guess_browser = function(ua){
     var res;
-    ua = ua || (!is_node_ff ? navigator.userAgent : '');
-    if (res = /\bOpera Mini\/(\d+)/.exec(ua))
+    ua = ua|| navigator&&navigator.userAgent ||'';
+    if (res = check_opera_mini.exec(ua))
         return {browser: 'opera_mini', version: res[1]};
-    var ucbrowser = check_ucbrowser.exec(ua);
-    if (res = /[( ]MSIE ([6789]|10).\d[);]/.exec(ua))
+    if (res = check_ie.exec(ua))
         return {browser: 'ie', version: res[1], xbox: check_xbox.test(ua)};
-    if (res = /[( ]Trident\/\d+(\.\d)+.*rv:(\d\d)(\.\d)+[);]/.exec(ua))
+    if (res = check_ie_legacy.exec(ua))
         return {browser: 'ie', version: res[2], xbox: check_xbox.test(ua)};
-    if (res = / Chrome\/(\d+)(\.\d+)+.* Safari\/\d+(\.\d+)+/.exec(ua))
-    {
-        var opera = check_opera.exec(ua);
-        var edge;
-        if (edge = check_edge.exec(ua))
-            return {browser: 'ie', version: edge[1]};
-        return {browser: 'chrome', version: res[1],
-            android: ua.match(/Android/),
-            webview: ua.match(/ Version\/(\d+)(\.\d)/),
-            hola_android: check_hola.test(ua),
-            hola_app: check_android_cdn.test(ua),
-            opera: opera && !!opera[1],
-            opera_version: opera ? opera[1] : undefined,
-            ucbrowser: ucbrowser && !!ucbrowser[1],
-            ucbrowser_version: ucbrowser ? ucbrowser[1] : undefined};
-    }
     if (res = / QupZilla\/(\d+\.\d+\.\d+).* Safari\/\d+.\d+/.exec(ua))
         return {browser: 'qupzilla', version: res[1]};
-    if (res = /\(PlayStation (\d+) (\d+\.\d+)\).* AppleWebKit\/\d+.\d+/
-        .exec(ua))
-    {
+    if (res = /\(PlayStation (\d+) (\d+\.\d+)\).* AppleWebKit\/\d+.\d+/.exec(ua))
         return {browser: 'playstation'+res[1], version: res[2]};
+    if (res = / (Firefox|PaleMoon)\/(\d+).\d/.exec(ua))
+        return {browser: 'firefox', version: res[2], palemoon: res[1]=='PaleMoon'};
+    if (res = /(?:iPhone|iPad|iPod|iPod touch);.*?OS ([\d._]+)/.exec(ua))
+        return {browser: 'safari', version: res[1], ios: true};
+    var ucbrowser = check_ucbrowser.exec(ua);
+    var opera = check_opera.exec(ua);
+    var edge;
+    if (res = / Chrome\/(\d+)(\.\d+)+.* Safari\/\d+(\.\d+)+/.exec(ua))
+    {
+        if (edge = check_edge.exec(ua))
+            return {browser: 'ie', version: edge[1]};
+        return {
+            browser: 'chrome', version: res[1],
+            android: ua.match(/Android/),
+            webview: ua.match(/ Version\/(\d+)(\.\d)/),
+            opera: !!opera,
+            opera_version: opera ? opera[1] : undefined,
+            ucbrowser: !!ucbrowser,
+            ucbrowser_version: ucbrowser ? ucbrowser[1] : undefined
+        };
     }
     if (res = / Version\/(\d+)(\.\d)+.* Safari\/\d+.\d+/.exec(ua))
     {
         if (!ua.match(/Android/))
             return {browser: 'safari', version: res[1]};
-        return {browser: 'chrome', version: res[1], android: true,
-            webview: true, hola_android: check_hola.test(ua),
-            hola_app: check_android_cdn.test(ua),
+        return {
+            browser: 'chrome', version: res[1], android: true, webview: true,
             ucbrowser: ucbrowser && !!ucbrowser[1],
-            ucbrowser_version: ucbrowser ? ucbrowser[1] : undefined};
-    }
-    if (res = / (Firefox|PaleMoon)\/(\d+).\d/.exec(ua))
-    {
-        return {browser: 'firefox', version: res[2],
-            palemoon: res[1]=='PaleMoon'};
-    }
-    if (/Hola\/\d+\.\d+.*?(?:iPhone|iPad|iPod)/.exec(ua))
-        return {browser: 'safari', version: 'Hola'};
-    if (res = /(?:iPhone|iPad|iPod|iPod touch);.*?OS ([\d._]+)/.exec(ua))
-    {
-        return {browser: 'safari', version: res[1], ios: true,
-            hola_ios: (!is_node_ff&&window.hola_cdn_sdk)||
-            check_ios_cdn.test(ua)};
+            ucbrowser_version: ucbrowser ? ucbrowser[1] : undefined
+        };
     }
     return {};
 };
-
 E.browser_to_string = function(browser){
     if (typeof browser!='object' || !browser.browser)
         return 'unknown';
@@ -121,14 +105,13 @@ E.browser_to_string = function(browser){
         s += ' ios';
     return s ? s : 'unknown';
 };
-
 E.guess = function(ua, platform){
     var res;
-    ua = ua || (!is_node_ff ? navigator.userAgent : '');
-    platform = platform || (!is_node_ff ? navigator.platform : '');
+    ua = ua || navigator&&navigator.userAgent || '';
+    platform = platform || navigator&&navigator.platform || '';
     if (check_xbox.exec(ua))
         return {os: 'xbox', mobile: false};
-    if (res = /Windows(?: NT(?: (.*?))?)?[);]/.exec(ua))
+    if (res = regex_windows.exec(ua))
     {
         return {
             os: 'windows',
@@ -167,24 +150,18 @@ E.guess = function(ua, platform){
         return {os: 'ps', mobile: false};
     if (/Windows Phone/.exec(ua))
         return {os: 'winphone', mobile: true};
-    // HitLeap Viewer (whatever it is) is Windows-only
     if (/HitLeap Viewer/.exec(ua))
         return {os: 'windows', mobile: false};
     return {};
 };
-
 E.guess_device = function(ua){
     var res;
-    ua = ua || (!is_node_ff ? navigator.userAgent : '');
+    ua = ua || navigator&&navigator.userAgent || '';
     if (res = /(iPhone|iPad|iPod)/.exec(ua))
         return {device: res[1].toLowerCase()};
     return {};
 };
-
 E.support_fullscreen = function(){
-    return !!(!is_node_ff &&
-        (document.fullscreenEnabled||document.mozFullScreenEnabled||
-        document.webkitFullscreenEnabled||document.msFullscreenEnabled));
+    return document.fullscreenEnabled||document.mozFullScreenEnabled||
+        document.webkitFullscreenEnabled||document.msFullscreenEnabled;
 };
-window.useragent = E;
-return E; })();

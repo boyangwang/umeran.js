@@ -7,8 +7,8 @@ angular.module('umeran').service('umeranChartDataProcessor', function() {
     var LABEL_EXTRACT_FUNCTION = {
         totalVisitsHours: function(record) { return record.timestamp.substring(11, 13); },
         totalVisitsDates: function(record) { return record.timestamp.substring(0, 10); },
-        totalVisitsBrowsers: function(record) { return window.useragent.guess_browser(record['user-agent']).browser; },
-        totalVisitsPlatforms: function(record) { return window.useragent.guess(record['user-agent']).os; }
+        totalVisitsBrowsers: function(record) { return window.umeran.useragent.guess_browser(record['user-agent']).browser; },
+        totalVisitsPlatforms: function(record) { return window.umeran.useragent.guess(record['user-agent']).os; }
     };
     var DEFAULT_DATA_POINTS = {
         totalVisitsHours: {'00': 0,'01': 0,'02': 0,'03': 0,'04': 0,'05': 0,'06': 0,'07': 0,'08': 0,'09': 0,'10': 0,'11': 0,'12': 0,
