@@ -16,14 +16,12 @@ mongodb.MongoClient.connect(dbUrl)
         app.use('/js', express.static(__dirname + '/node_modules/underscore/'));
         app.get('/analytics.png', analyticsPngHandler);
         app.get('/analytics.json', analyticsJsonHandler);
-    })
-    .then(new Promise((resolve, reject) => {
+    }).then(new Promise((resolve, reject) => {
             app.server = app.listen(port,  () => {
                 console.log('umeran listening on', port);
                 resolve();
             });
-    }))
-    .then(() => console.log('umeran bootstrapping done'))
+    })).then(() => console.log('umeran bootstrapping done'))
     .catch((reason) => console.log(reason));
 
 function analyticsPngHandler(req, res) {
@@ -32,8 +30,7 @@ function analyticsPngHandler(req, res) {
         .then(() => {
             res.set('Cache-Control', 'no-cache, no-store, must-revalidate');
             res.sendFile(__dirname + '/white-1x1.png');
-        })
-        .catch((reason) => console.log('reason', reason));
+        }).catch((reason) => console.log('reason', reason));
 }
 function getTotalRecords() {
     return db.collection('analyticsPngRaw').find({}).toArray();
