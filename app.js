@@ -16,6 +16,7 @@ mongodb.MongoClient.connect(dbUrl)
         app.use('/js', express.static(__dirname + '/node_modules/underscore/'));
         app.get('/analytics.png', analyticsPngHandler);
         app.get('/analytics.json', analyticsJsonHandler);
+        app.get('/scrapRecords.json', scrapRecordsJsonHandler);
     }).then(new Promise((resolve, reject) => {
             app.server = app.listen(port,  () => {
                 console.log('umeran listening on', port);
@@ -67,6 +68,14 @@ function analyticsJsonHandler(req, res) {
         .then((records) => result.records = records)
         .then(() => getRecordsAfterTimestamp(timestamp1DayBefore))
         .then((count) => result.past24HoursCount = count)
+        .then(() => res.json(result))
+        .catch((reason) => console.log('reason', reason));
+}
+function scrapRecordsJsonHandler(req, res) {
+    let result = {};
+    Promise.all([db.collection('scrapRecords').findOne({'keywords': {$in: ['mouse']}}),
+        db.collection('scrapRecords').findOne({'keywords': {$in: ['keyboard']}})])
+        .then(scrapRecords => result.scrapRecords = scrapRecords)
         .then(() => res.json(result))
         .catch((reason) => console.log('reason', reason));
 }
