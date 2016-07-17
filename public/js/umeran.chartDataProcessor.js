@@ -20,8 +20,9 @@ angular.module('umeran').service('umeranChartDataProcessor', function() {
     return function(masterData) {
         var charts = {};
         setupChartLevelStaticData(charts);
-        processRecordLevelData(charts, masterData.records);
+        processRecordLevelData(charts, masterData.analytics.records);
         postProcessData(charts);
+        processScrapRecordsCharts(charts, masterData.scrapRecords);
         console.log(charts);
         return charts;
     };
@@ -52,6 +53,30 @@ angular.module('umeran').service('umeranChartDataProcessor', function() {
             if (LABEL_POST_PROCESS_FUNCTION[chart_name])
                 charts[chart_name].labels =
                     _.map(charts[chart_name].labels, LABEL_POST_PROCESS_FUNCTION[chart_name]);
+        });
+    }
+    function processScrapRecordsCharts(charts, scrapRecords) {
+        charts.scrapRecords = {};
+        _.each(scrapRecords, function(record) {
+            var curChart = charts.scrapRecords[record.keywords.join('_')] = {}, labels = [];
+            curChart.values = [_.pluck(record.items, 'price')];
+            for (var i=0; i<record.items.length; labels.push(i) && i++);
+            curChart.labels = labels;
+            curChart.datasetOverride = [{lineTension: 0}];
+            curChart.options = {
+                tooltips: {
+                    callbacks: {
+                        label: function(tooltip, data) {
+                            var lines = [];
+                            for (var prop in record.items[tooltip.index]) {
+                                lines.push(prop.toUpperCase()+': '+record.items[tooltip.index][prop]);
+                                lines.push('');
+                            }
+                            return lines;
+                        }
+                    }
+                }
+            };
         });
     }
 })

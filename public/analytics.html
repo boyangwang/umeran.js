@@ -6,12 +6,18 @@
 <body>
     <div ng-controller="umeranController">
         <p>
-            <label>Number of visits in past 24 hours: {{masterData.past24HoursCount}}</label>
+            <label>Number of visits in past 24 hours: {{masterData.analytics.past24HoursCount}}</label>
         </p>
         <p>
-            <label>Number of visits total: {{masterData.records.length}}</label>
+            <label>Number of visits total: {{masterData.analytics.records.length}}</label>
         </p>
         <div ng-controller="umeranChartController" style="max-width: 640px;">
+            <p>prices - ['logitech', 'keyboard']</p>
+            <canvas class="chart chart-line" chart-data="charts.scrapRecords.logitech_keyboard.values" chart-labels="charts.scrapRecords.logitech_keyboard.labels" chart-options="charts.scrapRecords.logitech_keyboard.options" chart-dataset-override="charts.scrapRecords.logitech_keyboard.datasetOverride">
+            </canvas>
+            <p>prices - ['logitech', 'mouse']</p>
+            <canvas class="chart chart-line" chart-data="charts.scrapRecords.logitech_mouse.values" chart-labels="charts.scrapRecords.logitech_mouse.labels" chart-options="charts.scrapRecords.logitech_mouse.options" chart-dataset-override="charts.scrapRecords.logitech_mouse.datasetOverride">
+            </canvas>
             <p>totalVisitsHours</p>
             <canvas class="chart chart-line" chart-data="charts.totalVisitsHours.values" chart-labels="charts.totalVisitsHours.labels" chart-dataset-override="charts.totalVisitsHours.datasetOverride">
             </canvas>
@@ -26,8 +32,12 @@
             </canvas>
             <div>
                 <label>Sample documents: </label>
-                <pre ng-bind="masterData.records | samples: 5 | jsonPrettyPrint"></pre>
+                <pre ng-bind="masterData.analytics.records | samples: 2 | jsonPrettyPrint"></pre>
             </div>
+        </div>
+        <div>
+            <label>Sample scrap documents: </label>
+            <pre ng-bind="masterData.scrapRecords | jsonPrettyPrint"></pre>
         </div>
     </div>
     <script src="/js/polyfill.min.js"></script>
