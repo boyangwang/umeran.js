@@ -17,7 +17,7 @@ function run() {
         .then(dbConnection => db = dbConnection)
         .then(() => createScrapPromises(config.jobs))
         .then(parsedJobs => Promise.all(parsedJobs))
-        .then(resultArr => console.log('One round of scrap jobs done', resultArr))
+        .then(resultArr => console.log('One round of scrap jobs done'))
         .then(() => db.close())
         .catch(reason => console.log('Err in run', reason));
 }

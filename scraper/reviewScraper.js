@@ -40,23 +40,20 @@ function scrapLazadaKeywordsSearchResults(keywordConfig) {
 function upsertNewSku(keywordConfig, window) {
     let $ = jquery(window);
     return Promise.all($('.product-card').map((idx, elem) => {
-        // return createReviewUpdateObj($(elem))
-            // .then(reviewUpdateObj => {
+        return createReviewUpdateObj($(elem))
+            .then(reviewUpdateObj => {
                 let url = $(elem).attr('data-original');
                 let updateObj = {$setOnInsert: {createTimestamp: new Date(), keyword: keywordConfig.keyword}};
-                // if (reviewUpdateObj) {
-                //     console.log('reviewUpdateObj', reviewUpdateObj);
-                //     updateObj.$set = reviewUpdateObj;
-                // }
-                return Promise.resolve({url: url, updateObj: updateObj})
-            // })
-            .then(retVal => db.collection('scrapReviewRecords').updateOne({url: retVal.url}, retVal.updateObj, {upsert: true}));
+                if (reviewUpdateObj)
+                    updateObj.$set = reviewUpdateObj;
+                return {url: url, updateObj: updateObj};
+            }).then(retVal =>
+                db.collection('scrapReviewRecords').updateOne({url: retVal.url}, retVal.updateObj, {upsert: true})
+            );
     }).get());
 }
 function createReviewUpdateObj($elem) {
-    console.log('should have 200');
     if (!$elem.find('.product-card__rating__stars').length) return Promise.resolve();
-    console.log('should have ~20');
     return new Promise((resolve, reject) => {
         jsdom.env('http://www.lazada.sg'+$elem.attr('data-original'),
             (err, window) => {
@@ -65,7 +62,7 @@ function createReviewUpdateObj($elem) {
         });
     }).then(window => {
         let $ = jquery(window);
-        let reviewListDom = $('.ratRev_reviewList').eq(0);
+        let reviewListDom = $('#js_reviews_list').eq(0);
         let reviewList = reviewListDom.find('.ratRev_reviewListRow').map((idx, elem) => {
             let reviewObj = {};
             reviewObj.datePublished = $(elem).find('meta[itemprop=datePublished]').attr('content');
