@@ -10,7 +10,7 @@ const defaultConfig = {
 
 let db, config = deepAssign({}, defaultConfig, require('./'+process.argv[2]));
 run();
-// setInterval(run, config.interval);
+setInterval(run, config.interval);
 
 function run() {
     mongodb.MongoClient.connect(dbUrl)
