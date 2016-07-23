@@ -1,0 +1,33 @@
+{
+    "jobs": [{
+        "type": "review",
+        "siteConfigs": [
+            {
+                "site": "lazada",
+                "keywordConfigs": [
+                    {
+                        "keyword": "logitech keyboard",
+                        "limit": 1
+                    },
+                    {
+                        "keyword": "logitech mouse",
+                        "limit": 1
+                    }
+                ]
+            },
+            {
+                "site": "qoo10",
+                "keywordConfigs": [
+                    {
+                        "keyword": "logitech keyboard",
+                        "limit": 1
+                    },
+                    {
+                        "keyword": "logitech mouse",
+                        "limit": 1
+                    }
+                ]
+            }
+        ]
+    }]
+}
