@@ -19,7 +19,6 @@ function createScrapJobPromiseOfType(siteConfig, passedDb) {
     }
 }
 function createLazadaScrapJobs(siteConfig) {
-    console.log('siteConfig.keywordConfigs', siteConfig.keywordConfigs);
     return siteConfig.keywordConfigs.map(keywordConfig =>
         scrapLazadaKeywordsSearchResults(keywordConfig)
     );
@@ -28,23 +27,54 @@ function createQoo10ScrapJobs(siteConfig) {
     return new Error('Site not implemented qoo10');
 }
 function scrapLazadaKeywordsSearchResults(keywordConfig) {
-    let window, $;
     return new Promise((resolve, reject) => {
         jsdom.env('http://www.lazada.sg/catalog/?itemperpage=120&q='+keywordConfig.keyword.split(' ').join('+'),
             (err, window) => {
             if (err) reject(err);
             resolve(window);
         });
-    }).then(_window => {
-        window = _window;
-        $ = jquery(window);
-    }).then(() => upsertNewSku(keywordConfig, window, $));
+    }).then(window =>
+        upsertNewSku(keywordConfig, window)
+    );
 }
-function upsertNewSku(keywordConfig, window, $) {
-    let urlIds = $('.product-card').map((idx, elem) => $(elem).attr('data-original')).get();
-    return Promise.all(urlIds.map(curUrl =>
-        db.collection('scrapReviewRecords').updateOne({url: curUrl}, {
-            $setOnInsert: {createTimestamp: new Date(), keyword: keywordConfig.keyword}
-            }, {upsert: true})
-    ));
+function upsertNewSku(keywordConfig, window) {
+    let $ = jquery(window);
+    return Promise.all($('.product-card').map((idx, elem) => {
+        // return createReviewUpdateObj($(elem))
+            // .then(reviewUpdateObj => {
+                let url = $(elem).attr('data-original');
+                let updateObj = {$setOnInsert: {createTimestamp: new Date(), keyword: keywordConfig.keyword}};
+                // if (reviewUpdateObj) {
+                //     console.log('reviewUpdateObj', reviewUpdateObj);
+                //     updateObj.$set = reviewUpdateObj;
+                // }
+                return Promise.resolve({url: url, updateObj: updateObj})
+            // })
+            .then(retVal => db.collection('scrapReviewRecords').updateOne({url: retVal.url}, retVal.updateObj, {upsert: true}));
+    }).get());
+}
+function createReviewUpdateObj($elem) {
+    console.log('should have 200');
+    if (!$elem.find('.product-card__rating__stars').length) return Promise.resolve();
+    console.log('should have ~20');
+    return new Promise((resolve, reject) => {
+        jsdom.env('http://www.lazada.sg'+$elem.attr('data-original'),
+            (err, window) => {
+            if (err) reject(err);
+            resolve(window);
+        });
+    }).then(window => {
+        let $ = jquery(window);
+        let reviewListDom = $('.ratRev_reviewList').eq(0);
+        let reviewList = reviewListDom.find('.ratRev_reviewListRow').map((idx, elem) => {
+            let reviewObj = {};
+            reviewObj.datePublished = $(elem).find('meta[itemprop=datePublished]').attr('content');
+            reviewObj.ratingValue = $(elem).find('.ratRev_ratOptions[itemprop=ratingValue]').attr('content');
+            reviewObj.description = $(elem).find('.ratRev_revDetail[itemprop=description]').text().trim();
+            reviewObj.author = $(elem).find('.ratRev-revNickname[itemprop=author]').text().trim();
+            reviewObj.revBadge = $(elem).find('.ratRev-revBadge').text().trim();
+            return reviewObj;
+        }).get();
+        return {reviews: reviewList};
+    });
 }
