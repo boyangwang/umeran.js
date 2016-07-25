@@ -40,7 +40,7 @@ function createScrapPromisesOfCategoryProductPageLazada(categoryConfig) {
                 resolve(window);
             });
         }).then(window =>
-            upsertNewSku(window)
+            buildUpsertObjForProductsFromProductPage(window)
         ).then(retVals =>
             Promise.all(retVals.map(retVal => {
                 retVal.updateObj.$setOnInsert.category = categoryConfig.category;
@@ -57,7 +57,7 @@ function createScrapPromisesOfKeywordProductPageLazada(keywordConfig) {
             resolve(window);
         });
     }).then(window =>
-        upsertNewSku(window)
+        buildUpsertObjForProductsFromProductPage(window)
     ).then(retVals =>
         Promise.all(retVals.map(retVal => {
             retVals.updateObj.$setOnInsert.keyword = keywordConfig.keyword;
@@ -65,7 +65,7 @@ function createScrapPromisesOfKeywordProductPageLazada(keywordConfig) {
         }))
     );
 }
-function upsertNewSku(window) {
+function buildUpsertObjForProductsFromProductPage(window) {
     let $ = jquery(window);
     return Promise.all($('.product-card').map((idx, elem) => {
         return createReviewUpdateObj($(elem))
