@@ -58,11 +58,12 @@ function createScrapPromisesOfKeywordProductPageLazada(keywordConfig) {
         });
     }).then(window =>
         upsertNewSku(window)
-    ).then(retVals => {
-        console.log('retVals', retVals);
-        retVals.updateObj.$setOnInsert.keyword = keywordConfig.keyword;
-        return db.collection('scrapReviewRecords').updateOne({url: retVal.url}, retVal.updateObj, {upsert: true})
-    });
+    ).then(retVals =>
+        Promise.all(retVals.map(retVal => {
+            retVals.updateObj.$setOnInsert.keyword = keywordConfig.keyword;
+            return db.collection('scrapReviewRecords').updateOne({url: retVal.url}, retVal.updateObj, {upsert: true});
+        }))
+    );
 }
 function upsertNewSku(window) {
     let $ = jquery(window);
@@ -73,6 +74,7 @@ function upsertNewSku(window) {
                 let updateObj = {$setOnInsert: {createTimestamp: new Date()}};
                 if (reviewUpdateObj)
                     updateObj.$set = reviewUpdateObj;
+                window.close();
                 return {url: url, updateObj: updateObj};
             });
     }).get());
