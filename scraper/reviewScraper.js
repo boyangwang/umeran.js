@@ -32,7 +32,12 @@ function createScrapPromisesQoo10(siteConfig) {
 }
 function createScrapPromisesOfCategoryProductPageLazada(categoryConfig) {
     if (categoryConfig.category == 'ALL') {
-        return new Error('Category not implemented ALL');
+        return getAllCategories()
+            .then(categories => Promise.map(categories, category => {
+                console.log('category', category);
+                let categoryConfig = {category: category, limit: 1};
+                return createScrapPromisesOfCategoryProductPageLazada(categoryConfig);
+            }, {concurrency: 1}));
     }
     else {
         return new Promise((resolve, reject) => {
@@ -53,6 +58,22 @@ function createScrapPromisesOfCategoryProductPageLazada(categoryConfig) {
                 reason && reason.stack ? reason.stack : typeof reason)
         );
     }
+}
+function getAllCategories() {
+    return new Promise((resolve, reject) => {
+        jsdom.env('http://www.lazada.sg/', (err, window) => {
+            if (err) reject(err);
+            resolve(window);
+        });
+    }).then(window => {
+        let $ = jquery(window);
+        return _.select(_.uniq($('[data-tracking-nav-sub]').map((idx, elem) => {
+            let href = $(elem).attr('href')
+            let pathWithUrlParam = href.replace(/http:\/\/(www\.)?lazada\.sg\//, '');
+            let path = pathWithUrlParam.replace(/\/?\?.*$/, '');
+            return path[path.length-1] == '/' ? path.substring(0, path.length-1) : path;
+        }).get()), category => !category.includes('.html'));
+    });
 }
 function createScrapPromisesOfKeywordProductPageLazada(keywordConfig) {
     return new Promise((resolve, reject) => {
