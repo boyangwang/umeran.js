@@ -1,0 +1,25 @@
+{
+    "jobs": [{
+        "type": "review",
+        "siteConfigs": [
+            {
+                "site": "lazada",
+                "keywordConfigs": [
+                ],
+                "categoryConfigs": [
+                    {
+                        "category": "shop-power-banks",
+                        "limit": 1
+                    }
+                ]
+            },
+            {
+                "site": "qoo10",
+                "keywordConfigs": [
+                ],
+                "categoryConfigs": [
+                ]
+            }
+        ]
+    }]
+}

@@ -13,6 +13,16 @@
                         "keyword": "logitech mouse",
                         "limit": 1
                     }
+                ],
+                "categoryConfigs": [
+                    {
+                        "category": "shop-power-banks",
+                        "limit": 1
+                    },
+                    {
+                        "category": "shop-tablets",
+                        "limit": 1
+                    }
                 ]
             },
             {

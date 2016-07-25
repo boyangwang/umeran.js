@@ -10,23 +10,27 @@ const defaultConfig = {
 
 let db, config = deepAssign({}, defaultConfig, require('./'+process.argv[2]));
 run();
-setInterval(run, config.interval);
+if (process.argv[3] && process.argv['keepRunning'])
+    setInterval(run, config.interval);
 
 function run() {
     mongodb.MongoClient.connect(dbUrl)
         .then(dbConnection => db = dbConnection)
-        .then(() => createScrapPromises(config.jobs))
-        .then(parsedJobs => Promise.all(parsedJobs))
+        .then(() => createScrapPromisesOfTypes(config.jobs))
+        .then(parsedPromises => Promise.all(parsedPromises))
         .then(resultArr => console.log('One round of scrap jobs done'))
         .then(() => db.close())
-        .catch(reason => console.log('Err in run', reason));
+        .catch(reason => {
+            console.error('Err in run', reason, 'stack trace:\n',
+                reason && reason.stack ? reason.stack : typeof reason);
+            db && db.close();
+        });
 }
-function createScrapPromises(jobs) {
-    return jobs.reduce((jobTypeAccumulatorArr, job) => {
-        let createScrapJobs = require('./'+job.type+'Scraper.js');
-        let jobsSameTypeFromSites = job.siteConfigs.reduce((sitesAccumulatorArr, siteConfig) =>
-            sitesAccumulatorArr.concat(createScrapJobs(siteConfig, db))
-        , []);
-        return jobTypeAccumulatorArr.concat(jobsSameTypeFromSites);
-    }, []);
+function createScrapPromisesOfTypes(jobs) {
+    return [].concat(...jobs.map(job => {
+        let createScrapPromisesOfProductPagesSameSite = require('./'+job.type+'Scraper.js');
+        return [].concat(...(job.siteConfigs || []).map(siteConfig =>
+            createScrapPromisesOfProductPagesSameSite(siteConfig, db)
+        ));
+    }));
 }

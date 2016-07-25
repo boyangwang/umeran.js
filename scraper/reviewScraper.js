@@ -3,30 +3,53 @@ const request = require('request-promise');
 const jsdom = require('jsdom');
 const jquery = require('jquery');
 let db;
-module.exports = createScrapJobPromiseOfType;
+module.exports = createScrapPromisesOfProductPagesSameSite;
 
-function createScrapJobPromiseOfType(siteConfig, passedDb) {
+function createScrapPromisesOfProductPagesSameSite(siteConfig, passedDb) {
     db = passedDb;
-    console.log('In createScrapJobPromiseOfType', siteConfig);
+    console.log('In createScrapPromiseOfType', siteConfig);
     if (siteConfig.site == 'lazada') {
-        return createLazadaScrapJobs(siteConfig);
+        return createScrapPromisesLazada(siteConfig);
     }
     else if (siteConfig.site == 'qoo10') {
-        return createQoo10ScrapJobs(siteConfig);
+        return createScrapPromisesQoo10(siteConfig);
     }
     else {
         return new Error('Site not implemented', siteConfig.site);
     }
 }
-function createLazadaScrapJobs(siteConfig) {
-    return siteConfig.keywordConfigs.map(keywordConfig =>
-        scrapLazadaKeywordsSearchResults(keywordConfig)
-    );
+function createScrapPromisesLazada(siteConfig) {
+    return (siteConfig.keywordConfigs || []).map(keywordConfig =>
+        createScrapPromisesOfKeywordProductPageLazada(keywordConfig)
+    ).concat((siteConfig.categoryConfigs || []).map(categoryConfig =>
+        createScrapPromisesOfCategoryProductPageLazada(categoryConfig)
+    ));
 }
-function createQoo10ScrapJobs(siteConfig) {
+function createScrapPromisesQoo10(siteConfig) {
     return new Error('Site not implemented qoo10');
 }
-function scrapLazadaKeywordsSearchResults(keywordConfig) {
+function createScrapPromisesOfCategoryProductPageLazada(categoryConfig) {
+    if (categoryConfig.category == 'ALL') {
+        return new Error('Category not implemented ALL');
+    }
+    else {
+        return new Promise((resolve, reject) => {
+            jsdom.env('http://www.lazada.sg/'+categoryConfig.category+'/?itemperpage=120',
+                (err, window) => {
+                if (err) reject(err);
+                resolve(window);
+            });
+        }).then(window =>
+            upsertNewSku(window)
+        ).then(retVals =>
+            Promise.all(retVals.map(retVal => {
+                retVal.updateObj.$setOnInsert.category = categoryConfig.category;
+                return db.collection('scrapReviewRecords').updateOne({url: retVal.url}, retVal.updateObj, {upsert: true});
+            }))
+        );
+    }
+}
+function createScrapPromisesOfKeywordProductPageLazada(keywordConfig) {
     return new Promise((resolve, reject) => {
         jsdom.env('http://www.lazada.sg/catalog/?itemperpage=120&q='+keywordConfig.keyword.split(' ').join('+'),
             (err, window) => {
@@ -34,22 +57,24 @@ function scrapLazadaKeywordsSearchResults(keywordConfig) {
             resolve(window);
         });
     }).then(window =>
-        upsertNewSku(keywordConfig, window)
-    );
+        upsertNewSku(window)
+    ).then(retVals => {
+        console.log('retVals', retVals);
+        retVals.updateObj.$setOnInsert.keyword = keywordConfig.keyword;
+        return db.collection('scrapReviewRecords').updateOne({url: retVal.url}, retVal.updateObj, {upsert: true})
+    });
 }
-function upsertNewSku(keywordConfig, window) {
+function upsertNewSku(window) {
     let $ = jquery(window);
     return Promise.all($('.product-card').map((idx, elem) => {
         return createReviewUpdateObj($(elem))
             .then(reviewUpdateObj => {
                 let url = $(elem).attr('data-original');
-                let updateObj = {$setOnInsert: {createTimestamp: new Date(), keyword: keywordConfig.keyword}};
+                let updateObj = {$setOnInsert: {createTimestamp: new Date()}};
                 if (reviewUpdateObj)
                     updateObj.$set = reviewUpdateObj;
                 return {url: url, updateObj: updateObj};
-            }).then(retVal =>
-                db.collection('scrapReviewRecords').updateOne({url: retVal.url}, retVal.updateObj, {upsert: true})
-            );
+            });
     }).get());
 }
 function createReviewUpdateObj($elem) {
