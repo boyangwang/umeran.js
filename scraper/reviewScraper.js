@@ -34,12 +34,12 @@ function createScrapPromisesOfCategoryProductPageLazada(categoryConfig) {
     if (categoryConfig.category == 'ALL') {
         return getAllCategories()
             .then(categories => Promise.map(categories, category => {
-                console.log('category', category);
                 let categoryConfig = {category: category, limit: 1};
                 return createScrapPromisesOfCategoryProductPageLazada(categoryConfig);
             }, {concurrency: 1}));
     }
     else {
+        console.log('in createScrapPromisesOfCategoryProductPageLazada', category);
         return new Promise((resolve, reject) => {
             jsdom.env('http://www.lazada.sg/'+categoryConfig.category+'/?itemperpage=120',
                 (err, window) => {
