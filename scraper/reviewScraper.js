@@ -76,9 +76,10 @@ function buildUpsertObjForProductsFromProductPage(window) {
                 if (reviewUpdateObj)
                     updateObj.$set = reviewUpdateObj;
                 window.close();
+                if (global.gc) global.gc();
                 return {url: url, updateObj: updateObj};
             })
-    , {concurrency: 20});
+    , {concurrency: 1});
 }
 function createReviewUpdateObj($elem) {
     if (!$elem.find('.product-card__rating__stars').length) return Promise.resolve();
