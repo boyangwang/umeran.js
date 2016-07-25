@@ -61,7 +61,7 @@ function createScrapPromisesOfKeywordProductPageLazada(keywordConfig) {
         buildUpsertObjForProductsFromProductPage(window)
     ).then(retVals =>
         Promise.all(retVals.map(retVal => {
-            retVals.updateObj.$setOnInsert.keyword = keywordConfig.keyword;
+            retVal.updateObj.$setOnInsert.keyword = keywordConfig.keyword;
             return db.collection('scrapReviewRecords').updateOne({url: retVal.url}, retVal.updateObj, {upsert: true});
         }))
     );
