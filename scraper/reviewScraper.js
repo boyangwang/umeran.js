@@ -47,6 +47,9 @@ function createScrapPromisesOfCategoryProductPageLazada(categoryConfig) {
                 retVal.updateObj.$setOnInsert.category = categoryConfig.category;
                 return db.collection('scrapReviewRecords').updateOne({url: retVal.url}, retVal.updateObj, {upsert: true});
             }))
+        ).catch(reason =>
+            console.error('Err in createScrapPromisesOfCategoryProductPageLazada', reason, 'stack trace:\n',
+                reason && reason.stack ? reason.stack : typeof reason)
         );
     }
 }
@@ -64,6 +67,9 @@ function createScrapPromisesOfKeywordProductPageLazada(keywordConfig) {
             retVal.updateObj.$setOnInsert.keyword = keywordConfig.keyword;
             return db.collection('scrapReviewRecords').updateOne({url: retVal.url}, retVal.updateObj, {upsert: true});
         }))
+    ).catch(reason =>
+        console.error('Err in createScrapPromisesOfCategoryProductPageLazada', reason, 'stack trace:\n',
+            reason && reason.stack ? reason.stack : typeof reason)
     );
 }
 function buildUpsertObjForProductsFromProductPage(window) {
