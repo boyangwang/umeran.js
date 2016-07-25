@@ -68,8 +68,8 @@ function createScrapPromisesOfKeywordProductPageLazada(keywordConfig) {
 }
 function buildUpsertObjForProductsFromProductPage(window) {
     let $ = jquery(window);
-    return Promise.all($('.product-card').map((idx, elem) => {
-        return createReviewUpdateObj($(elem))
+    return Promise.map($('.product-card'), (elem) =>
+        createReviewUpdateObj($(elem))
             .then(reviewUpdateObj => {
                 let url = $(elem).attr('data-original');
                 let updateObj = {$setOnInsert: {createTimestamp: new Date()}};
@@ -77,8 +77,8 @@ function buildUpsertObjForProductsFromProductPage(window) {
                     updateObj.$set = reviewUpdateObj;
                 window.close();
                 return {url: url, updateObj: updateObj};
-            });
-    }).get());
+            })
+    , {concurrency: 20});
 }
 function createReviewUpdateObj($elem) {
     if (!$elem.find('.product-card__rating__stars').length) return Promise.resolve();
