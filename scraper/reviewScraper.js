@@ -3,6 +3,7 @@ const Promise = require("bluebird");
 const request = require('request-promise');
 const jsdom = require('jsdom');
 const jquery = require('jquery');
+const _ = require('underscore');
 let db;
 module.exports = createScrapPromisesOfProductPagesSameSite;
 
