@@ -39,7 +39,7 @@ function createScrapPromisesOfCategoryProductPageLazada(categoryConfig) {
             }, {concurrency: 1}));
     }
     else {
-        console.log('in createScrapPromisesOfCategoryProductPageLazada', category);
+        console.log('in createScrapPromisesOfCategoryProductPageLazada', categoryConfig);
         return new Promise((resolve, reject) => {
             jsdom.env('http://www.lazada.sg/'+categoryConfig.category+'/?itemperpage=120',
                 (err, window) => {
