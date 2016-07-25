@@ -1,5 +1,6 @@
 // scrap job executor
 'use strict';
+const Promise = require("bluebird");
 const mongodb = require('mongodb');
 const fs = require('fs-promise');
 const deepAssign = require('deep-assign');
